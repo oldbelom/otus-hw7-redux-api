@@ -22,7 +22,7 @@ export function createStore<State, Action>(
   preloadedState?: State | undefined
 ) {
   let state = preloadedState;
-  let subscribers: Array<() => void> = [];
+  let subscribers: Set<() => void> = new Set();
   return {
     getState: () => state,
     dispatch: (action: Action) => {
@@ -30,9 +30,11 @@ export function createStore<State, Action>(
       subscribers.forEach((callBack) => callBack());
     },
     subscribe: (callBack: () => void) => {
-      subscribers.push(callBack);
+      subscribers.add(callBack);
       return () => {
-        subscribers = subscribers.filter((item) => item !== callBack);
+        subscribers = new Set(
+          Array.from(subscribers).filter((item) => item !== callBack)
+        );
       };
     },
   };

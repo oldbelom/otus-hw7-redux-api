@@ -1,17 +1,26 @@
-type NewState = {
-  [key: string]: () => object;
+type Action = {
+  type: string;
+  [key: string]: any;
 };
 
 type State = {
   [key: string]: any;
 };
 
-export function combineReducers(config: object) {
-  return function reducer(state: State | undefined, action: object) {
-    const newState: NewState = {};
+type Reducer = {
+  (state: State | undefined, action: Action): State;
+};
+
+export type ReducersMap = {
+  [key: string]: Reducer;
+};
+
+export function combineReducers(config: ReducersMap) {
+  return function reducer(state: State | undefined, action: Action) {
+    const newState: State = {};
     Object.entries(config).forEach(([stateKey, nestedReducer]) => {
-      if (state === undefined) {
-        newState[stateKey] = nestedReducer(undefined, action);
+      if (!state) {
+        newState[stateKey] = nestedReducer(state, action);
       } else {
         newState[stateKey] = nestedReducer(state[stateKey], action);
       }
